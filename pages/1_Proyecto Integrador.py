@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from df import df
+data = pd.read_csv('./static/datasets/integrador.csv')
+df = pd.DataFrame(data)
 
 st.title("Proyecto Integrador")
 #------------------------------------------------------------------------------
