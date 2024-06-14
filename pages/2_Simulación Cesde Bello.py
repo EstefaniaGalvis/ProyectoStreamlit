@@ -173,7 +173,7 @@ def filtro3():
         st.warning('Por favor selecciona una jornada.')
 
         
-
+# -----------------------------------------------------------------------------------
 filtros =[
     "Notas por grupo",
     "Notas por estudiante",
