@@ -88,9 +88,96 @@ def filtro2():
         st.subheader(round(conocimiento.mean(),1)) 
   
 # -----------------------------------------------------------------------------------
+
+def filtro3(): 
+    submodulo = st.selectbox('Selecciona el submódulo', submodulosU)
+    momentos = st.selectbox('Selecciona el momento', momentosU)
+    
+    colM, colN, colMT, colT = st.columns(4)
+    with colM:
+        mañana = st.checkbox('Mañana')
+    with colN:
+        noche = st.checkbox('Noche')
+    with colMT:
+        mañanaTarde = st.checkbox('Mañana-Tarde')
+    with colT:
+        tarde = st.checkbox('Tarde')
+    
+    seleccionadas = sum([mañana, noche, mañanaTarde, tarde]) 
+
+    if seleccionadas > 1:
+        st.error('Por favor solo selecciona una jornada.')
+
+    elif mañana:
+        df_filtrado = df[(df['ESTADO'] == 'FORMACIÓN') & (df['JORNADA'] == 'MAÑANA') & (df['SUBMODULO'] == submodulo) & (df['BECADO'] == 'SI')&(df['MOMENTO']==momentos)]
+         
+    
+        estudiante=df_filtrado['NOMBRE']
+        fig = go.Figure(data=[
+            go.Bar(name='CONOCIMIENTO', x=estudiante, y=df_filtrado['CONOCIMIENTO']),
+            go.Bar(name='DESEMPEÑO', x=estudiante, y=df_filtrado['DESEMPEÑO']),
+            go.Bar(name='PRODUCTO', x=estudiante, y=df_filtrado['PRODUCTO'])
+        ])
+
+        fig.update_layout(barmode='group')
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.table(df_filtrado[['NOMBRE', 'CONOCIMIENTO', 'DESEMPEÑO', 'PRODUCTO']].head(20))
+    
+    elif mañanaTarde:
+        df_filtrado = df[(df['ESTADO'] == 'FORMACIÓN') & (df['JORNADA'] == 'MAÑANA-TARDE') & (df['SUBMODULO'] == submodulo) & (df['BECADO'] == 'SI')&(df['MOMENTO']==momentos)]
+        
+    
+        estudiante=df_filtrado['NOMBRE']
+        fig = go.Figure(data=[
+            go.Bar(name='CONOCIMIENTO', x=estudiante, y=df_filtrado['CONOCIMIENTO']),
+            go.Bar(name='DESEMPEÑO', x=estudiante, y=df_filtrado['DESEMPEÑO']),
+            go.Bar(name='PRODUCTO', x=estudiante, y=df_filtrado['PRODUCTO'])
+        ])
+
+        fig.update_layout(barmode='group')
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.table(df_filtrado[['NOMBRE', 'CONOCIMIENTO', 'DESEMPEÑO', 'PRODUCTO']].head(20))
+    
+    elif tarde: 
+        df_filtrado = df[(df['ESTADO'] == 'FORMACIÓN') & (df['JORNADA'] == 'MAÑANA-TARDE') & (df['SUBMODULO'] == submodulo) & (df['BECADO'] == 'SI')&(df['MOMENTO']==momentos)]
+        df_filtrado= df_filtrado.reset_index(drop=True) 
+    
+        estudiante=df_filtrado['NOMBRE']
+        fig = go.Figure(data=[
+            go.Bar(name='CONOCIMIENTO', x=estudiante, y=df_filtrado['CONOCIMIENTO']),
+            go.Bar(name='DESEMPEÑO', x=estudiante, y=df_filtrado['DESEMPEÑO']),
+            go.Bar(name='PRODUCTO', x=estudiante, y=df_filtrado['PRODUCTO'])
+        ])
+
+        fig.update_layout(barmode='group')
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.table(df_filtrado[['NOMBRE', 'CONOCIMIENTO', 'DESEMPEÑO', 'PRODUCTO']].head(20))
+
+    elif noche:
+        df_filtrado = df[(df['ESTADO'] == 'FORMACIÓN') & (df['JORNADA'] == 'MAÑANA-TARDE') & (df['SUBMODULO'] == submodulo) & (df['BECADO'] == 'SI')&(df['MOMENTO']==momentos)]
+        tabla1 = (df_filtrado[['NOMBRE', 'CONOCIMIENTO', 'DESEMPEÑO', 'PRODUCTO']].head(20))
+        
+        estudiante=df_filtrado['NOMBRE']
+        fig = go.Figure(data=[
+            go.Bar(name='CONOCIMIENTO', x=estudiante, y=df_filtrado['CONOCIMIENTO']),
+            go.Bar(name='DESEMPEÑO', x=estudiante, y=df_filtrado['DESEMPEÑO']),
+            go.Bar(name='PRODUCTO', x=estudiante, y=df_filtrado['PRODUCTO'])
+        ]) 
+        
+        fig.update_layout(barmode='group')
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning('Por favor selecciona una jornada.')
+
+        
+
 filtros =[
     "Notas por grupo",
-    "Notas por estudiante"
+    "Notas por estudiante",
+    "Notas según jornada y beca"
 ]
 
 filtro = st.selectbox("Filtros",filtros)
@@ -102,3 +189,5 @@ if filtro:
         filtro1()
     elif filtro_index == 1:
         filtro2()
+    elif filtro_index == 2:
+        filtro3()
