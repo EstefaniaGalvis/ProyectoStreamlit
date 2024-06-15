@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from datetime import datetime
 
 # Cargar los datos
 data = pd.read_csv('./static/datasets/integrador.csv')
@@ -10,12 +11,20 @@ st.title("Proyecto Integrador")
 
 # Función para el primer filtro por fechas
 def filtro1():
+    # Obtener fechas mínima y máxima del DataFrame
+    fecha_minima = df['FechaEstreno'].min()
+    fecha_maxima = df['FechaEstreno'].max()
+
     # Interfaz para ingresar fechas
-    FechaInicial = st.date_input("Ingrese la fecha inicial", value=df['FechaEstreno'].min())
-    FechaFinal = st.date_input("Ingrese la fecha Final", value=df['FechaEstreno'].max())
+    FechaInicial = st.date_input("Ingrese la fecha inicial", value=datetime.strptime(fecha_minima, '%Y-%m-%d').date())
+    FechaFinal = st.date_input("Ingrese la fecha Final", value=datetime.strptime(fecha_maxima, '%Y-%m-%d').date())
+
+    # Convertir fechas a formato compatible
+    fecha_inicial_str = FechaInicial.strftime('%Y-%m-%d')
+    fecha_final_str = FechaFinal.strftime('%Y-%m-%d')
 
     # Filtrar el DataFrame por las fechas seleccionadas
-    opcion_seleccionada = df[(df['FechaEstreno'] >= str(FechaInicial)) & (df['FechaEstreno'] <= str(FechaFinal))]
+    opcion_seleccionada = df[(df['FechaEstreno'] >= fecha_inicial_str) & (df['FechaEstreno'] <= fecha_final_str)]
 
     # Mostrar los resultados en una tabla
     st.table(opcion_seleccionada)
