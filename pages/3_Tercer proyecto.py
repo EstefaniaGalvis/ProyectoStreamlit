@@ -56,33 +56,24 @@ else:
     def filtro2():
         st.write("Filtro para mostrar la cantidad de productos comprados por estado")
 
-        # Obtener la lista de estados únicos
         estados = sorted(df['state'].unique())
 
-        # Seleccionar estado
         estado_seleccionado = st.selectbox("Selecciona un estado", estados)
 
-        # Filtrar datos por estado seleccionado
         df_estado = df[df['state'] == estado_seleccionado]
 
-        # Obtener lista de productos únicos en el estado seleccionado y añadir "Todos los productos"
         productos_estado = ["Todos los productos"] + sorted(df_estado['Product'].unique())
 
-        # Seleccionar productos (con selección múltiple)
         productos_seleccionados = st.multiselect("Selecciona productos para comparar", productos_estado)
 
         if productos_seleccionados:
             if "Todos los productos" in productos_seleccionados:
-                # Si se selecciona "Todos los productos", mostrar todos los productos
                 df_filtrado = df_estado
             else:
-                # Filtrar datos por productos seleccionados
                 df_filtrado = df_estado[df_estado['Product'].isin(productos_seleccionados)]
 
-            # Agrupar los datos por producto y sumar la cantidad de productos comprados
             productos_por_estado = df_filtrado.groupby('Product').agg({'quantity': 'sum', 'Price': 'sum'}).reset_index()
 
-            # Gráfico de barras para los productos seleccionados
             fig = go.Figure(data=[
                 go.Bar(name='Cantidad de Productos', x=productos_por_estado['Product'], y=productos_por_estado['quantity'])
             ])
@@ -96,7 +87,6 @@ else:
 
             st.plotly_chart(fig, use_container_width=True)
 
-            # Mostrar detalle de productos comprados en el estado seleccionado
             st.write(f"Detalle de productos comprados en {estado_seleccionado}")
             st.dataframe(productos_por_estado)
         else:
@@ -105,21 +95,16 @@ else:
     def filtro3():
         st.write("Filtro para mostrar la cantidad de productos comprados y los ingresos por cada producto")
 
-        # Obtener la lista de productos únicos
         productos = sorted(df['Product'].unique())
 
-        # Seleccionar producto
         producto_seleccionado = st.selectbox("Selecciona un producto", productos)
 
         if producto_seleccionado:
-            # Filtrar datos por producto seleccionado
             df_producto = df[df['Product'] == producto_seleccionado]
 
-            # Agrupar los datos por producto y sumar la cantidad de productos comprados y los ingresos
             productos_comprados = df_producto['quantity'].sum()
             ingresos_totales = df_producto['Price'].sum()
 
-            # Mostrar gráfico de barras y detalle de cantidad de productos comprados e ingresos
             fig = go.Figure(data=[
                 go.Bar(name='Cantidad de Productos', x=[producto_seleccionado], y=[productos_comprados]),
                 go.Bar(name='Ingresos Totales', x=[producto_seleccionado], y=[ingresos_totales])
@@ -134,7 +119,6 @@ else:
 
             st.plotly_chart(fig, use_container_width=True)
 
-            # Mostrar detalle de cantidad de productos comprados e ingresos
             st.write(f"Detalle de cantidad de productos comprados e ingresos para {producto_seleccionado}")
             detalle_df = pd.DataFrame({
                 'Producto': [producto_seleccionado],
