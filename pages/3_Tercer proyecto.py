@@ -49,12 +49,16 @@ def filtro2():
 
     df_estado = df[df['state'] == estado_seleccionado]
 
-    productos_estado = sorted(df_estado['Product'].unique())
+    productos_estado = ["Todos los productos"] + sorted(df_estado['Product'].unique())
 
     productos_seleccionados = st.multiselect("Selecciona productos para comparar", productos_estado)
 
     if productos_seleccionados:
-        df_filtrado = df_estado[df_estado['Product'].isin(productos_seleccionados)]
+        if "Todos los productos" in productos_seleccionados:
+            # Si se selecciona "Todos los productos", mostrar todos los productos
+            df_filtrado = df_estado
+        else:
+            df_filtrado = df_estado[df_estado['Product'].isin(productos_seleccionados)]
 
         productos_por_estado = df_filtrado.groupby('Product')['quantity'].sum().reset_index()
 
