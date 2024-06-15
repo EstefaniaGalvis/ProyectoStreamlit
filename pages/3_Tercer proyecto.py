@@ -105,19 +105,32 @@ else:
     def filtro3():
         st.write("Filtro para mostrar la cantidad de productos comprados y los ingresos por cada producto")
 
-        # Obtener la lista de productos únicos
-        productos = sorted(df['Product'].unique())
+        # Obtener la lista de estados únicos
+        estados = sorted(df['state'].unique())
 
-        # Seleccionar producto
-        producto_seleccionado = st.selectbox("Selecciona un producto", productos)
+        # Seleccionar estado
+        estado_seleccionado = st.selectbox("Selecciona un estado", estados)
+
+        # Filtrar datos por estado seleccionado
+        df_estado = df[df['state'] == estado_seleccionado]
+
+        # Obtener lista de productos únicos en el estado seleccionado y añadir "Todos los productos"
+        productos_estado = ["Todos los productos"] + sorted(df_estado['Product'].unique())
+
+        # Seleccionar producto (con opción para todos los productos)
+        producto_seleccionado = st.selectbox("Selecciona un producto", productos_estado)
 
         if producto_seleccionado:
-            # Filtrar datos por producto seleccionado
-            df_producto = df[df['Product'] == producto_seleccionado]
+            if producto_seleccionado == "Todos los productos":
+                # Mostrar todos los productos del estado seleccionado
+                df_filtrado = df_estado
+            else:
+                # Filtrar datos por producto seleccionado
+                df_filtrado = df_estado[df_estado['Product'] == producto_seleccionado]
 
             # Agrupar los datos por producto y sumar la cantidad de productos comprados y los ingresos
-            productos_comprados = df_producto['quantity'].sum()
-            ingresos_totales = df_producto['Price'].sum()
+            productos_comprados = df_filtrado['quantity'].sum()
+            ingresos_totales = df_filtrado['Price'].sum()
 
             # Mostrar gráfico de barras y detalle de cantidad de productos comprados e ingresos
             fig = go.Figure(data=[
@@ -126,7 +139,7 @@ else:
             ])
 
             fig.update_layout(
-                title=f"Cantidad de Productos Comprados e Ingresos para {producto_seleccionado}",
+                title=f"Cantidad de Productos Comprados e Ingresos para {producto_seleccionado} en {estado_seleccionado}",
                 xaxis_title="Producto",
                 yaxis_title="Cantidad de Productos / Ingresos",
                 barmode='group'
@@ -135,7 +148,7 @@ else:
             st.plotly_chart(fig, use_container_width=True)
 
             # Mostrar detalle de cantidad de productos comprados e ingresos
-            st.write(f"Detalle de cantidad de productos comprados e ingresos para {producto_seleccionado}")
+            st.write(f"Detalle de cantidad de productos comprados e ingresos para {producto_seleccionado} en {estado_seleccionado}")
             detalle_df = pd.DataFrame({
                 'Producto': [producto_seleccionado],
                 'Cantidad de Productos Comprados': [productos_comprados],
