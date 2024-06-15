@@ -109,8 +109,9 @@ else:
 
             df_filtrado = df[(df['monthly_income'] >= min_ingreso) & (df['monthly_income'] <= max_ingreso)]
 
-
             productos_por_ingreso = df_filtrado.groupby('Product').agg({'quantity': 'sum', 'Price': 'sum'}).reset_index()
+
+            total_ingresos = productos_por_ingreso['Price'].sum()
 
             fig = go.Figure(data=[
                 go.Bar(name='Cantidad de Productos', x=productos_por_ingreso['Product'], y=productos_por_ingreso['quantity']),
@@ -128,6 +129,9 @@ else:
 
             st.write(f"Detalle de productos comprados e ingresos en el rango de ingresos {rango_seleccionado}")
             st.dataframe(productos_por_ingreso)
+
+            st.metric(label=f"Total de Ingresos en el rango {rango_seleccionado}", value=total_ingresos)
+
         else:
             st.write("Por favor selecciona un rango de ingresos.")
 
