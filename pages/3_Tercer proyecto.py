@@ -43,22 +43,30 @@ def filtro1():
 def filtro2():
     st.write("Filtro para mostrar la cantidad de productos comprados por estado")
 
-    # Agrupar los datos por estado y sumar la cantidad de productos comprados
-    productos_por_estado = df.groupby('state')['quantity'].sum().reset_index()
+    estados = sorted(df['state'].unique())
 
-    # Gráfico de barras
+    estado_seleccionado = st.selectbox("Selecciona un estado", estados)
+
+    df_estado = df[df['state'] == estado_seleccionado]
+
+    productos_por_estado = df_estado.groupby('state')['quantity'].sum().reset_index()
+
     fig = go.Figure(data=[
         go.Bar(name='Cantidad de Productos', x=productos_por_estado['state'], y=productos_por_estado['quantity'])
     ])
 
     fig.update_layout(
-        title="Cantidad de Productos Comprados por Estado",
+        title=f"Cantidad de Productos Comprados en {estado_seleccionado}",
         xaxis_title="Estado",
         yaxis_title="Cantidad de Productos",
         barmode='group'
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+    productos_detalle = df_estado.groupby('Product')['quantity'].sum().reset_index()
+    st.write(f"Detalle de productos comprados en {estado_seleccionado}")
+    st.dataframe(productos_detalle)
 
 # -----------------------------------------------------------------------------------
 filtros = [
