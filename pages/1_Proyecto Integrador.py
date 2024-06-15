@@ -26,7 +26,7 @@ def filtro2():
 
 filtros =[
     "Peliculas con mayor puntuación entre las fechas seleccionadas",
-    "Peliculas con mayor puntuación segun la categoría seleccionada",
+    "Peliculas mostradas según la categoría seleccionada",
     ""
 ]
 
