@@ -7,6 +7,9 @@ st.title("Tercer proyecto")
 # Leer el archivo CSV
 df = pd.read_csv('static/datasets/Online_retail_sales.csv')
 
+# Renombrar la columna ' monthly_income ' para quitar espacios
+df.rename(columns=lambda x: x.strip(), inplace=True)
+
 # Asegurarse de que las columnas existen
 expected_columns = ['monthly_income', 'Product', 'quantity', 'state', 'payment_method']
 missing_columns = [col for col in expected_columns if col not in df.columns]
@@ -52,14 +55,19 @@ else:
     def filtro2():
         st.write("Filtro para mostrar la cantidad de productos comprados por estado")
 
+        # Obtener la lista de estados únicos
         estados = sorted(df['state'].unique())
 
+        # Seleccionar estado
         estado_seleccionado = st.selectbox("Selecciona un estado", estados)
 
+        # Filtrar datos por estado seleccionado
         df_estado = df[df['state'] == estado_seleccionado]
 
+        # Obtener lista de productos únicos en el estado seleccionado y añadir "Todos los productos"
         productos_estado = ["Todos los productos"] + sorted(df_estado['Product'].unique())
 
+        # Seleccionar productos (con selección múltiple)
         productos_seleccionados = st.multiselect("Selecciona productos para comparar", productos_estado)
 
         if productos_seleccionados:
@@ -70,8 +78,10 @@ else:
                 # Filtrar datos por productos seleccionados
                 df_filtrado = df_estado[df_estado['Product'].isin(productos_seleccionados)]
 
+            # Agrupar los datos por producto y sumar la cantidad de productos comprados
             productos_por_estado = df_filtrado.groupby('Product')['quantity'].sum().reset_index()
 
+            # Gráfico de barras para los productos seleccionados
             fig = go.Figure(data=[
                 go.Bar(name='Cantidad de Productos', x=productos_por_estado['Product'], y=productos_por_estado['quantity'])
             ])
@@ -85,6 +95,7 @@ else:
 
             st.plotly_chart(fig, use_container_width=True)
 
+            # Mostrar detalle de productos comprados en el estado seleccionado
             st.write(f"Detalle de productos comprados en {estado_seleccionado}")
             st.dataframe(productos_por_estado)
         else:
@@ -93,6 +104,7 @@ else:
     def filtro3():
         st.write("Filtro para mostrar la cantidad de productos comprados por rango de ingresos mensuales")
 
+        # Definir los rangos de ingresos
         ingresos_rangos = {
             'Menos de $20,000': (0, 20000),
             '$20,000 - $40,000': (20000, 40000),
@@ -100,15 +112,19 @@ else:
             'Más de $60,000': (60000, df['monthly_income'].max())
         }
 
+        # Seleccionar rango de ingresos
         rango_seleccionado = st.selectbox("Selecciona un rango de ingresos", list(ingresos_rangos.keys()))
 
         if rango_seleccionado:
             min_ingreso, max_ingreso = ingresos_rangos[rango_seleccionado]
 
+            # Filtrar datos por rango de ingresos seleccionado
             df_filtrado = df[(df['monthly_income'] >= min_ingreso) & (df['monthly_income'] <= max_ingreso)]
 
+            # Agrupar los datos por producto y sumar la cantidad de productos comprados
             productos_por_ingreso = df_filtrado.groupby('Product')['quantity'].sum().reset_index()
 
+            # Gráfico de barras para los productos seleccionados
             fig = go.Figure(data=[
                 go.Bar(name='Cantidad de Productos', x=productos_por_ingreso['Product'], y=productos_por_ingreso['quantity'])
             ])
@@ -122,6 +138,7 @@ else:
 
             st.plotly_chart(fig, use_container_width=True)
 
+            # Mostrar detalle de productos comprados en el rango de ingresos seleccionado
             st.write(f"Detalle de productos comprados en el rango de ingresos {rango_seleccionado}")
             st.dataframe(productos_por_ingreso)
         else:
