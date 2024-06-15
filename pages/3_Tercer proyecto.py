@@ -49,24 +49,32 @@ def filtro2():
 
     df_estado = df[df['state'] == estado_seleccionado]
 
-    productos_por_estado = df_estado.groupby('state')['quantity'].sum().reset_index()
+    productos_estado = sorted(df_estado['Product'].unique())
 
-    fig = go.Figure(data=[
-        go.Bar(name='Cantidad de Productos', x=productos_por_estado['state'], y=productos_por_estado['quantity'])
-    ])
+    productos_seleccionados = st.multiselect("Selecciona productos para comparar", productos_estado)
 
-    fig.update_layout(
-        title=f"Cantidad de Productos Comprados en {estado_seleccionado}",
-        xaxis_title="Estado",
-        yaxis_title="Cantidad de Productos",
-        barmode='group'
-    )
+    if productos_seleccionados:
+        df_filtrado = df_estado[df_estado['Product'].isin(productos_seleccionados)]
 
-    st.plotly_chart(fig, use_container_width=True)
+        productos_por_estado = df_filtrado.groupby('Product')['quantity'].sum().reset_index()
 
-    productos_detalle = df_estado.groupby('Product')['quantity'].sum().reset_index()
-    st.write(f"Detalle de productos comprados en {estado_seleccionado}")
-    st.dataframe(productos_detalle)
+        fig = go.Figure(data=[
+            go.Bar(name='Cantidad de Productos', x=productos_por_estado['Product'], y=productos_por_estado['quantity'])
+        ])
+
+        fig.update_layout(
+            title=f"Cantidad de Productos Comprados en {estado_seleccionado}",
+            xaxis_title="Producto",
+            yaxis_title="Cantidad de Productos",
+            barmode='group'
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.write(f"Detalle de productos comprados en {estado_seleccionado}")
+        st.dataframe(productos_por_estado)
+    else:
+        st.write("Por favor selecciona al menos un producto.")
 
 # -----------------------------------------------------------------------------------
 filtros = [
