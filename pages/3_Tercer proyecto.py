@@ -7,6 +7,7 @@ st.title("Tercer proyecto")
 # Leer el archivo CSV
 df = pd.read_csv('static/datasets/Online_retail_sales.csv') 
 df['payment_method'] = df['payment_method'].fillna("No comprado").astype(str)
+df['monthly_income'] = df['monthly_income'].replace('[\$,]', '', regex=True).astype(float)  # Convertir los ingresos a float
 
 st.write("Dataset usado: Online retail sales")
 
@@ -43,6 +44,7 @@ def filtro1():
 def filtro2():
     st.write("Filtro para mostrar la cantidad de productos comprados por estado")
 
+
     estados = sorted(df['state'].unique())
 
     estado_seleccionado = st.selectbox("Selecciona un estado", estados)
@@ -55,7 +57,6 @@ def filtro2():
 
     if productos_seleccionados:
         if "Todos los productos" in productos_seleccionados:
-            # Si se selecciona "Todos los productos", mostrar todos los productos
             df_filtrado = df_estado
         else:
             df_filtrado = df_estado[df_estado['Product'].isin(productos_seleccionados)]
@@ -80,6 +81,43 @@ def filtro2():
     else:
         st.write("Por favor selecciona al menos un producto.")
 
+def filtro3():
+    st.write("Filtro para mostrar la cantidad de productos comprados por rango de ingresos mensuales")
+
+    ingresos_rangos = {
+        'Menos de $20,000': (0, 20000),
+        '$20,000 - $40,000': (20000, 40000),
+        '$40,000 - $60,000': (40000, 60000),
+        'Más de $60,000': (60000, df['monthly_income'].max())
+    }
+
+    rango_seleccionado = st.selectbox("Selecciona un rango de ingresos", list(ingresos_rangos.keys()))
+
+    if rango_seleccionado:
+        min_ingreso, max_ingreso = ingresos_rangos[rango_seleccionado]
+
+        df_filtrado = df[(df['monthly_income'] >= min_ingreso) & (df['monthly_income'] <= max_ingreso)]
+
+        productos_por_ingreso = df_filtrado.groupby('Product')['quantity'].sum().reset_index()
+
+        fig = go.Figure(data=[
+            go.Bar(name='Cantidad de Productos', x=productos_por_ingreso['Product'], y=productos_por_ingreso['quantity'])
+        ])
+
+        fig.update_layout(
+            title=f"Cantidad de Productos Comprados en el Rango de Ingresos {rango_seleccionado}",
+            xaxis_title="Producto",
+            yaxis_title="Cantidad de Productos",
+            barmode='group'
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.write(f"Detalle de productos comprados en el rango de ingresos {rango_seleccionado}")
+        st.dataframe(productos_por_ingreso)
+    else:
+        st.write("Por favor selecciona un rango de ingresos.")
+
 # -----------------------------------------------------------------------------------
 filtros = [
     "Primer filtro",
@@ -95,3 +133,5 @@ if filtro:
         filtro1()
     elif filtro_index == 1:
         filtro2()
+    elif filtro_index == 2:
+        filtro3()
